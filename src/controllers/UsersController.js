@@ -39,8 +39,7 @@ class UsersController {
     const { id } = request.params;
 
     const user = await knex("users").where({ id }).first();
-    const userWithUpdatedEmail = await knex("users").where({email}).first();
-
+    const userWithUpdatedEmail = await knex("users").where({ email }).first();
 
     if (userWithUpdatedEmail && userWithUpdatedEmail.id !== user.id) {
       throw new AppError("Este e-mail já está em uso!");
@@ -66,6 +65,18 @@ class UsersController {
 
     await knex("users").where({ id }).update(user);
     return response.json(`Usuário atualizado com sucesso!`);
+  }
+
+  async show(request, response) {
+    const { name, email } = request.query;
+
+    const user = await knex("users")
+      .select("id", "name", "email", "avatar", "created_at", "updated_at")
+      .whereLike("name", `%${name}%`)
+      .whereLike("email", `%${email}%`)
+      .first();
+
+    return response.json(user);
   }
 }
 
